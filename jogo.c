@@ -37,7 +37,7 @@ int pontos[3] = {0, 0, 0};
 
 
 
-#TUTORIAL
+//TUTORIAL
 
 void tutorial(char *player1, char *player2, int pontuacao, int pontuacao1, int pontuacao2, int score1, int score2, int posicao_macaco1, int posicao_macaco2, char rank[3][10], int pontos[3], int pontuacao_final1, int pontuacao_final2) {
     clear();
@@ -77,7 +77,7 @@ void tutorial(char *player1, char *player2, int pontuacao, int pontuacao1, int p
 }
 
 
-#RANKING
+//RANKING
 
 void ranking(char Rank[][10], int pontos[]) {
     int voltar_menu = 1;
@@ -96,7 +96,7 @@ void ranking(char Rank[][10], int pontos[]) {
 }
 
 
-#MENU
+//MENU
 
 void menu(char* player1, char* player2, int pontuacao, int pontuacao1, int pontuacao2, int score1, int score2, int posicao_macaco1, int posicao_macaco2, char rank[3][10], int pontos[3], int pontuacao_final1, int pontuacao_final2){
 int x = 0;
@@ -139,7 +139,7 @@ while(opcao != 1){
 }
 
 
-#DIFICULDADE
+//DIFICULDADE
 
 int dificuldade(){
 clear();
