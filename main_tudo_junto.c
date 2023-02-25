@@ -8,6 +8,11 @@
 
 
 //VARIÁVEIS
+#define LIMITE 156
+#define LIMITE_VERT 40
+#define PONTOS_ACERTO 100
+#define PONTOS_ERRO 1
+
 float POSICAO;
 float radianos;
 int graus;
@@ -49,10 +54,46 @@ void ranking(char Rank[][10], int pontos[]);
 
 void ordenador_rank(char Rank[][10], int pontos[], int pontuacao_final1, int pontuacao_final2, char player1[], char player2[]);
 
+void tutorial(char *player1, char *player2, int pontuacao, int pontuacao1, int pontuacao2, int score1, int score2, int posicao_macaco1, int posicao_macaco2, char rank[3][10], int pontos[3], int pontuacao_final1, int pontuacao_final2);
+
+
+void clear() {
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void imprimir_em(int x, int y, char *texto) { // imprimir um texto em alguma posição da tela
+    printf("\033[%d;%dH", y, x); // move o cursor para a posição (x, y)
+    printf("%s", texto); // exibe o texto na tela
+    fflush(stdout); // força o buffer de saída a ser esvaziado
+}
+
+void init(int lines){
+int k;
+for(k=1;k<=lines;k++){
+    printf("\n");
+    }
+fflush(stdout);
+}
+
+void reset(int x, int y, int lines, int columns) {
+    printf("\033[%d;%dH", y, x);  // move o cursor para a posição (x, y)
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j < columns; j++) {
+            printf(" ");  // escreve um espaço em branco na posição atual
+        }
+        printf("\033[1B");  // move o cursor para baixo
+        printf("\033[%dD", columns);  // move o cursor de volta para a esquerda
+    }
+    printf("\033[%d;%dH", y, x);  // move o cursor de volta para a posição inicial
+
 
 
 //TUTORIAL
-void tutorial(char *player1, char *player2, int pontuacao, int pontuacao1, int pontuacao2, int score1, int score2, int posicao_macaco1, int posicao_macaco2, char rank[3][10], int pontos[3], int pontuacao_final1, int pontuacao_final2) {
+void tutorial(char *player1, char *player2, int pontuacao, int pontuacao1, int pontuacao2, int score1, int score2, int posicao_macaco1, int posicao_macaco2, char Rank[3][10], int pontos[3], int pontuacao_final1, int pontuacao_final2) {
     clear();
     imprimir_em((LIMITE / 2) - 4, 2, "Tutorial");
     imprimir_em((LIMITE / 2) - 44, 10, "Os jogadores devem informar os seguintes valores: ângulo(em graus) e velocidade(em m/s)");
@@ -181,7 +222,7 @@ void jogo(float coordenada, float distancia, int esquerda, char player1[], char 
             }
         }
 
-        posicao_macaco1, posicao_macaco2, radianos, score1, score2 = layout(coordenada, distancia, esquerda, player1, player2, pontuacao1, pontuacao2, posicao_macaco1, posicao_macaco2, score1, score2);
+        layout(coordenada, distancia, esquerda, player1, player2, pontuacao1, pontuacao2, posicao_macaco1, posicao_macaco2, score1, score2);
 
         if (esquerda == 1) {
             altura = LIMITE_VERT - 4 - (((vel*vel)*(sin(radianos)*sin(radianos)))/(2*grv));
@@ -293,11 +334,11 @@ void ordenador_rank(char Rank[][10], int pontos[], int pontuacao_final1, int pon
 void turnos(esquerda){
 if(esquerda == 1){
    POSICAO = LIMITE/200;
-   return 0;
+   esquerda = 0;
 }
 else {
    POSICAO = LIMITE-15;
-   return 1;
+   esquerda = 1;
 }
 }
 
@@ -310,7 +351,7 @@ posicao_macaco2 = 140 + rand()% 60;
 if(coordenada == 1){
     if(distancia == 1){
         while(score1 > 0 && score2 > 0){
-            esquerda = turnos(esquerda);
+            turnos(esquerda);
             init(LIMITE_VERT);
             reset(1, 2, LIMITE_VERT - 1, LIMITE);
             imprimir_em(1,1, player1);
@@ -352,7 +393,7 @@ if(coordenada == 1){
     }
     else{
         while(score1 > 0 && score2 > 0){
-            esquerda = turnos(esquerda);
+            turnos(esquerda);
             init(LIMITE_VERT);
             reset(1, 2, LIMITE_VERT - 1, LIMITE);
             imprimir_em(1,1, player1);
@@ -397,7 +438,7 @@ if(coordenada == 1){
         }
     }
     } else{
-        while(score 1 > 0 && score2 > 0){
+        while(score1 > 0 && score2 > 0){
             turnos(esquerda);
             init(LIMITE_VERT);
             reset(1, 2, LIMITE_VERT - 1, LIMITE);
@@ -444,88 +485,80 @@ if(coordenada == 1){
 
 
 //TRAJETÓRIA
-void trajetoria(struct banana bananas[], int posicao_macaco1, int posicao_macaco2, int altura, int esquerda, int score1, int score2){
+typedef struct {
+    int ativa;
+    int x, y;
+    int traj[2];
+} Banana;
+
+void trajetoria(Banana bananas[], int tam_bananas, int posicao_macaco1, int posicao_macaco2, int altura, int esquerda, int *score1, int *score2) {
     int i;
-    int acertou = 0;
 
     if (esquerda == 1) {
-        for (i = 0; i < NUM_BANANAS; i++) {
+        for (i = 0; i < tam_bananas; i++) {
             if (bananas[i].ativa == 0) {
                 bananas[i].ativa = 1;
                 bananas[i].x = posicao_macaco1;
                 bananas[i].y = LIMITE_VERT - 6;
-                bananas[i].traj.A = 3;
-                bananas[i].traj.B = 1;
+                bananas[i].traj[0] = 3;
+                bananas[i].traj[1] = 1;
                 break;
             }
         }
-        for (i = 0; i < NUM_BANANAS; i++) {
+
+        for (i = 0; i < tam_bananas; i++) {
             if (bananas[i].ativa == 1) {
                 while (bananas[i].y > altura && bananas[i].y != 0) {
-                    bananas[i].x += bananas[i].traj.A;
-                    bananas[i].y -= bananas[i].traj.B;
-                    gotoxy(bananas[i].x, bananas[i].y);
-                    printf("L");
-                    Sleep(100);
-                    gotoxy(bananas[i].x, bananas[i].y);
-                    printf(" ");
+                    bananas[i].x += bananas[i].traj[0];
+                    bananas[i].y -= bananas[i].traj[1];
+                    imprimir_em(bananas[i].x, bananas[i].y, "L");
+                    esperar(0.1);
+                    imprimir_em(bananas[i].x, bananas[i].y, " ");
                 }
+
                 while (bananas[i].y != LIMITE_VERT - 4 && bananas[i].y != 0 && bananas[i].x < LIMITE) {
-                    bananas[i].x += bananas[i].traj.A;
-                    bananas[i].y += bananas[i].traj.B;
-                    gotoxy(bananas[i].x, bananas[i].y);
-                    printf("L");
-                    Sleep(100);
-                    gotoxy(bananas[i].x, bananas[i].y);
-                    printf(" ");
+                    bananas[i].x += bananas[i].traj[0];
+                    bananas[i].y += bananas[i].traj[1];
+                    imprimir_em(bananas[i].x, bananas[i].y, "L");
+                    esperar(0.1);
+                    imprimir_em(bananas[i].x, bananas[i].y, " ");
                 }
+
                 if (bananas[i].ativa == 1) {
                     if(esquerda == 1){
                         esquerda = 0;
                     } else{
                         esquerda = 1;
-                     }
+                        }
                     break;
                 }
             }
         }
-        for (i = 0; i < NUM_BANANAS; i++) {
+
+        int acertou = 0;
+        for (i = 0; i < tam_bananas; i++) {
             if (bananas[i].ativa == 1 && bananas[i].x <= posicao_macaco2 + 3 && bananas[i].y == LIMITE_VERT - 4 && bananas[i].x >= posicao_macaco2 - 3) {
                 acertou = 1;
+                *score1 += 1;
                 break;
             }
         }
     }
     else {
-        for (i = 0; i < NUM_BANANAS; i++) {
-            if (bananas[i].ativa == 0) {
+        for (i = 0; i < tam_bananas; i++) {
+            if (!bananas[i].ativa) {
                 bananas[i].ativa = 1;
                 bananas[i].x = posicao_macaco2;
                 bananas[i].y = LIMITE_VERT - 6;
-                bananas[i].traj.A = 3;
-                bananas[i].traj.B = 1;
-                break;
+                bananas[i].traj[0] = 3;
             }
-        }
-        for (i = 0; i < NUM_BANANAS; i++) {
-            if (bananas[i].ativa == 1) {
-                while (bananas[i].y > altura && bananas[i].y != 0) {
-                    bananas[i].x -= bananas[i].traj.A;
-                    bananas[i].y -= bananas[i].traj.B;
-                    gotoxy(bananas[i].x, bananas[i].y);
-                    printf("L");
-                    Sleep(100);
-                    gotoxy(bananas[i].x, bananas[i].y);
-                }
             }
-        }
-        }
+    }}
 }
-
-
+}
 
 //
 int main(int argc, char *argv[])
 {
 tutorial(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
-}}
+}
