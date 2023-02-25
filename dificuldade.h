@@ -1,0 +1,6 @@
+#ifndef DIFICULDADE_H_INCLUDED
+#define DIFICULDADE_H_INCLUDED
+
+int dificuldade();
+
+#endif // DIFICULDADE_H_INCLUDED
