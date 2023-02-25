@@ -27,3 +27,15 @@ for(k=1;k<=lines;k++){
     }
 fflush(stdout);
 }
+
+void reset(int x, int y, int lines, int columns) {
+    printf("\033[%d;%dH", y, x);  // move o cursor para a posição (x, y)
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j < columns; j++) {
+            printf(" ");  // escreve um espaço em branco na posição atual
+        }
+        printf("\033[1B");  // move o cursor para baixo
+        printf("\033[%dD", columns);  // move o cursor de volta para a esquerda
+    }
+    printf("\033[%d;%dH", y, x);  // move o cursor de volta para a posição inicial
+}
