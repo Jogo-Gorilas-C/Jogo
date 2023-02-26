@@ -1,3 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <time.h>
+#include "console.h"
+
 //VARIÁVEIS
 #define LIMITE 156
 #define LIMITE_VERT 40
@@ -6,6 +14,7 @@
 
 float POSICAO;
 float radianos;
+int tam_bananas = 5;
 int graus;
 int vel;
 int continuar;
@@ -15,8 +24,8 @@ int x = 2;
 int score1 = 2;
 int score2 = 2;
 int esquerda = 1;
-char player1[10];
-char player2[10];
+char player1[12];
+char player2[12];
 int pontuacao1 = 0;
 int pontuacao2 = 0;
 int pontuacao = 0;
@@ -108,21 +117,21 @@ void tutorial() {
             scanf("%d", &continuar);
             if(continuar == 1){
                 clear();
-                //menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
+                menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
                 }
             else{
                 clear();
-                //menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
+                menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
                 }
         }
         else{
             clear();
-            //menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
         }
     }
     else{
         clear();
-        //menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
+        menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos[3], pontuacao_final1, pontuacao_final2);
         }
 }
 
@@ -137,11 +146,11 @@ while(opcao != 1){
     imprimir_em(1 , 13, "1 - JOGAR");
     imprimir_em(1 , 15, "2 - DIFICULDADE");
     imprimir_em(1 , 17, "3 - RANKING");
-    imprimir_em(1 , 19, "5 - SAIR");
-    imprimir_em(LIMITE - 35, 49, "ALUNOS:");
-    imprimir_em(LIMITE - 35, 50, "Arthur Marcelino Batista da Silva");
-    imprimir_em(LIMITE - 35, 51, "Luan Rubens Saraiva Barroso");
-    imprimir_em(LIMITE - 35, 52, "Lucas Cesar da Silva\n");
+    imprimir_em(1 , 19, "4 - SAIR");
+    imprimir_em(LIMITE - 35, 29, "ALUNOS:");
+    imprimir_em(LIMITE - 35, 30, "Arthur Marcelino Batista da Silva");
+    imprimir_em(LIMITE - 35, 31, "Luan Rubens Saraiva Barroso");
+    imprimir_em(LIMITE - 35, 32, "Lucas Cesar da Silva\n");
     scanf("%d", &opcao);
     if(opcao == 1){
         clear();
@@ -173,8 +182,9 @@ while(opcao != 1){
 
 //JOGO
 void jogo(float coordenada, float distancia, int esquerda, char player1[], char player2[], int pontuacao[], int pontuacao1, int pontuacao2, int score1, int score2, float posicao_macaco1, float posicao_macaco2) {
-
+    posicao_macaco1, posicao_macaco2, radianos, vel, score1, score2 = layout(coordenada, distancia, esquerda, player1, player2, pontuacao1, pontuacao2, posicao_macaco1, posicao_macaco2, score1, score2);
     float grv = 10;
+    radianos = graus * 3.142 / 180;
     float altura = LIMITE_VERT - 4 - (((vel*vel)*(sin(radianos)*sin(radianos)))/(2*grv));
     float alcance = ((vel*vel)*sin(2*radianos))/grv + posicao_macaco1;
 
@@ -190,7 +200,8 @@ void jogo(float coordenada, float distancia, int esquerda, char player1[], char 
     Banana bananas[1] = { {0, 0, 0, 0, 0} };
 
     while (score1 > 0 && score2 > 0) {
-        esquerda, acertou, score1, score2 = trajetoria(bananas, posicao_macaco1, posicao_macaco2, altura, esquerda, score1, score2);
+        esquerda, acertou, score1, score2 = trajetoria(bananas, tam_bananas, posicao_macaco1, posicao_macaco2, altura, esquerda, &score1, &score2);
+
         sleep(1);
 
         if (esquerda == 0) {
@@ -217,7 +228,8 @@ void jogo(float coordenada, float distancia, int esquerda, char player1[], char 
             }
         }
 
-        layout(coordenada, distancia, esquerda, player1, player2, pontuacao1, pontuacao2, posicao_macaco1, posicao_macaco2, score1, score2);
+        posicao_macaco1, posicao_macaco2, radianos, vel, score1, score2 = layout(coordenada, distancia, esquerda, player1, player2, pontuacao1, pontuacao2, posicao_macaco1, posicao_macaco2, score1, score2);
+
 
         if (esquerda == 1) {
             altura = LIMITE_VERT - 4 - (((vel*vel)*(sin(radianos)*sin(radianos)))/(2*grv));
@@ -237,9 +249,9 @@ void jogo(float coordenada, float distancia, int esquerda, char player1[], char 
 int dificuldade(){
 clear();
 imprimir_em((LIMITE / 2) - 15, 2, "ESCOLHA A DIFICULDADE DO JOGO:");
-imprimir_em((LIMITE / 2) - 25, 5, "1 - FÁCIL : distância entre os macacos é mostrada");
-imprimir_em((LIMITE / 2) - 25, 8, "2 - MÉDIO : as posições dos macacos é mostrada");
-imprimir_em((LIMITE / 2) - 25, 11, "3 - DIFÍCIL : distância  e posição não são mostrados\n");
+imprimir_em((LIMITE / 2) - 25, 5, "1 - FACIL : distancia entre os macacos é mostrada");
+imprimir_em((LIMITE / 2) - 25, 8, "2 - MEDIO : as posiçoes dos macacos é mostrada");
+imprimir_em((LIMITE / 2) - 25, 11, "3 - DIFICIL : distancia  e posição não sao mostrados\n");
 scanf("%d", &x);
 }
 
@@ -265,7 +277,7 @@ void ranking(char Rank[][10], int pontos[]) {
 
 
 //ORDENADOR DO RANKING
-void ordenador_rank(char Rank[][10], int pontos[], int pontuacao_final1, int pontuacao_final2, char player1[], char player2[]) {
+void ordenador_rank(char Rank[3][10], int pontos[], int pontuacao_final1, int pontuacao_final2, char player1[], char player2[]) {
     int i = 0, j = 0;
     while (i == 0) {
         if (pontuacao_final1 > pontos[0]) {
@@ -352,17 +364,16 @@ if(coordenada == 1){
             imprimir_em(1,1, player1);
             imprimir_em((LIMITE / 2) - 10, LIMITE_VERT-2, "VIDA");
             imprimir_em(LIMITE - 17, 1, player2);
-            imprimir_em( 1, 2, "Pontuação: ");
+            imprimir_em( 1, 2, "Pontuacao: ");
             printf("%d", pontuacao1);
-            imprimir_em(LIMITE - 17, 2, "Pontuação: ");
+            imprimir_em(LIMITE - 17, 2, "Pontuacao: ");
             printf("%d", pontuacao2);
             imprimir_em(posicao_macaco1, LIMITE_VERT - 5, "O");
             imprimir_em(posicao_macaco2, LIMITE_VERT - 5, "O");
             imprimir_em(POSICAO, LIMITE_VERT - 2, "Angulo: ");
             scanf("%d", &graus);
-            radianos = graus * 3.142 / 180;
             imprimir_em(POSICAO, LIMITE_VERT - 1, "Velocidade: ");
-            scanf("f", &vel);
+            scanf("%f", &vel);
             return posicao_macaco1, posicao_macaco2, radianos, vel, score1, score2;
         }
         if(score1 == 0){
@@ -372,8 +383,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
         else if(score2 == 0){
             clear();
@@ -382,8 +393,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
     }
     else{
@@ -394,21 +405,20 @@ if(coordenada == 1){
             imprimir_em(1,1, player1);
             imprimir_em((LIMITE / 2) - 10, LIMITE_VERT-2, "VIDA");
             imprimir_em(LIMITE - 17, 1, player2);
-            imprimir_em( 1, 2, "Pontuação: ");
+            imprimir_em( 1, 2, "Pontuacao: ");
             printf("%d", pontuacao1);
-            imprimir_em(LIMITE - 17, 2, "Pontuação: ");
+            imprimir_em(LIMITE - 17, 2, "Pontuacao: ");
             printf("%d", pontuacao2);
-            imprimir_em( 1, 3, "Posição: ");
+            imprimir_em( 1, 3, "Posicao: ");
             printf("%d", posicao_macaco1);
             imprimir_em(posicao_macaco1, LIMITE_VERT - 5, "O");
-            imprimir_em( LIMITE - 17, 3, "Posição: ");
+            imprimir_em( LIMITE - 17, 3, "Posicao: ");
             printf("%d", posicao_macaco2);
             imprimir_em(posicao_macaco2, LIMITE_VERT - 5, "O");
             imprimir_em(POSICAO, LIMITE_VERT - 2, "Angulo: ");
             scanf("%d", &graus);
-            radianos = graus * 3.142 / 180;
             imprimir_em(POSICAO, LIMITE_VERT - 1, "Velocidade: ");
-            scanf("f", &vel);
+            scanf("%f", &vel);
             return posicao_macaco1, posicao_macaco2, radianos, vel, score1, score2;
         }
         if(score1 == 0){
@@ -418,8 +428,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
         else if(score2 == 0){
             clear();
@@ -428,8 +438,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
     }
     } else{
@@ -440,17 +450,16 @@ if(coordenada == 1){
             imprimir_em(1,1, player1);
             imprimir_em((LIMITE / 2) - 10, LIMITE_VERT-2, "VIDA");
             imprimir_em(LIMITE - 17, 1, player2);
-            imprimir_em( 1, 2, "Pontuação: ");
+            imprimir_em( 1, 2, "Pontuacao: ");
             printf("%d", pontuacao1);
-            imprimir_em(LIMITE - 17, 2, "Pontuação: ");
+            imprimir_em(LIMITE - 17, 2, "Pontuacao: ");
             printf("%d", pontuacao2);
             imprimir_em(posicao_macaco1, LIMITE_VERT - 5, "O");
             imprimir_em(posicao_macaco2, LIMITE_VERT - 5, "O");
             imprimir_em(POSICAO, LIMITE_VERT - 2, "Angulo: ");
             scanf("%d", &graus);
-            radianos = graus * 3.142 / 180;
             imprimir_em(POSICAO, LIMITE_VERT - 1, "Velocidade: ");
-            scanf("f", &vel);
+            scanf("%f", &vel);
             return posicao_macaco1, posicao_macaco2, radianos, vel, score1, score2;
         }
         if(score1 == 0){
@@ -460,8 +469,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
         else if(score2 == 0){
             clear();
@@ -470,8 +479,8 @@ if(coordenada == 1){
             sleep(3);
             pontuacao_final1 = pontuacao1;
             pontuacao_final2 = pontuacao2;
-            //ordenador_rank();
-            //menu();
+            ordenador_rank( Rank[3][10], pontos, pontuacao_final1, pontuacao_final2, player1, player2);
+            menu(player1, player2, pontuacao, pontuacao1, pontuacao2, score1, score2, posicao_macaco1, posicao_macaco2, Rank[3][10], pontos, pontuacao_final1, pontuacao_final2);
         }
         }
 
@@ -481,10 +490,12 @@ if(coordenada == 1){
 
 //TRAJETÓRIA
 typedef struct {
-    int ativa;
-    int x, y;
-    int traj[2];
-} Banana;
+        int x;
+        int y;
+        int ativa;
+        int traj_A;
+        int traj_B;
+    } Banana;
 
 void trajetoria(Banana bananas[], int tam_bananas, int posicao_macaco1, int posicao_macaco2, int altura, int esquerda, int *score1, int *score2) {
     int i;
@@ -495,8 +506,8 @@ void trajetoria(Banana bananas[], int tam_bananas, int posicao_macaco1, int posi
                 bananas[i].ativa = 1;
                 bananas[i].x = posicao_macaco1;
                 bananas[i].y = LIMITE_VERT - 6;
-                bananas[i].traj[0] = 3;
-                bananas[i].traj[1] = 1;
+                bananas[i].traj_A = 3;
+                bananas[i].traj_B = 1;
                 break;
             }
         }
@@ -504,18 +515,18 @@ void trajetoria(Banana bananas[], int tam_bananas, int posicao_macaco1, int posi
         for (i = 0; i < tam_bananas; i++) {
             if (bananas[i].ativa == 1) {
                 while (bananas[i].y > altura && bananas[i].y != 0) {
-                    bananas[i].x += bananas[i].traj[0];
-                    bananas[i].y -= bananas[i].traj[1];
+                    bananas[i].x += bananas[i].traj_A;
+                    bananas[i].y -= bananas[i].traj_B;
                     imprimir_em(bananas[i].x, bananas[i].y, "L");
-                    sleep(0.1);
+                    sleep(1);
                     imprimir_em(bananas[i].x, bananas[i].y, " ");
                 }
 
                 while (bananas[i].y != LIMITE_VERT - 4 && bananas[i].y != 0 && bananas[i].x < LIMITE) {
-                    bananas[i].x += bananas[i].traj[0];
-                    bananas[i].y += bananas[i].traj[1];
+                    bananas[i].x += bananas[i].traj_A;
+                    bananas[i].y += bananas[i].traj_B;
                     imprimir_em(bananas[i].x, bananas[i].y, "L");
-                    sleep(0.1);
+                    sleep(1);
                     imprimir_em(bananas[i].x, bananas[i].y, " ");
                 }
 
@@ -541,17 +552,57 @@ void trajetoria(Banana bananas[], int tam_bananas, int posicao_macaco1, int posi
     }
     else {
         for (i = 0; i < tam_bananas; i++) {
-            if (!bananas[i].ativa) {
+            if (bananas[i].ativa == 0) {
                 bananas[i].ativa = 1;
                 bananas[i].x = posicao_macaco2;
                 bananas[i].y = LIMITE_VERT - 6;
-                bananas[i].traj[0] = 3;
+                bananas[i].traj_A = 3;
             }
+            }
+        for (i = 0; i < tam_bananas; i++) {
+            if (bananas[i].ativa == 1) {
+                while (bananas[i].y > altura && bananas[i].y != 0) {
+                    bananas[i].x -= bananas[i].traj_A;
+                    bananas[i].y -= bananas[i].traj_B;
+                    imprimir_em(bananas[i].x, bananas[i].y, "L");
+                    sleep(1);
+                    imprimir_em(bananas[i].x, bananas[i].y, " ");
+                }
+
+                while (bananas[i].y != LIMITE_VERT - 4 && bananas[i].y != 0 && bananas[i].x > 1) {
+                    bananas[i].x -= bananas[i].traj_A;
+                    bananas[i].y += bananas[i].traj_B;
+                    imprimir_em(bananas[i].x, bananas[i].y, "L");
+                    sleep(1);
+                    imprimir_em(bananas[i].x, bananas[i].y, " ");
+                }
+
+                if (bananas[i].ativa == 1) {
+                    if(esquerda == 1){
+                        esquerda = 0;
+                    } else{
+                        esquerda = 1;
+                        }
+                    break;
+                }
+            }
+        }
+
+
+        acertou = 0;
+        for (i = 0; i < tam_bananas; i++) {
+            if (bananas[i].ativa == 1 && bananas[i].x <= posicao_macaco2 + 3 && bananas[i].y == LIMITE_VERT - 4 && bananas[i].x >= posicao_macaco2 - 3) {
+                acertou = 1;
+                *score1 += 1;
+                break;
             }
     }}
 
+bananas->ativa = 0;
 
+return esquerda, acertou,score1,score2;
 
+}
 
 int main(int argc, char *argv[])
 {
